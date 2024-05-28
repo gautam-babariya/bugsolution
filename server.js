@@ -43,7 +43,7 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
   });
 
 
-app.get('/', (req, res) => {
+app.get('/api/upload', (req, res) => {
     res.send('Hello World!');
   });
 // Start the server
