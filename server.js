@@ -4,9 +4,16 @@ var { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const path = require('path');
+const { Readable } = require('stream');
 
 
 const app = express();
+app.use(cors({
+    origin: 'http://localhost:5173', // Adjust this to match your frontend's URL
+    optionsSuccessStatus: 200,
+  }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 // Cloudinary configuration
 cloudinary.config({
@@ -24,7 +31,7 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
     }
   
     const stream = Readable.from(req.file.buffer);
-    
+  
     const uploadStream = cloudinary.uploader.upload_stream(
       { resource_type: 'video' },
       (error, result) => {
