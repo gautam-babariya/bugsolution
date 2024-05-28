@@ -22,32 +22,34 @@ cloudinary.config({
     api_secret: 'OtKmdP9jhhYIXObdsuUmVbDCuV4'
 });
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({});
 
-app.post('/api/upload', upload.single('video'), (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-  
+app.post('/api/upload', upload.single('video'), async (req, res) => {
+  try {
+    // Readable stream from buffer
     const stream = Readable.from(req.file.buffer);
-  
-    const uploadStream = cloudinary.uploader.upload_stream(
+
+    // Upload stream to Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload_stream(
       { resource_type: 'video' },
       (error, result) => {
         if (error) {
-          return res.status(500).json({ error: 'Failed to upload to Cloudinary' });
+          res.status(500).json({ error: 'Failed to upload to Cloudinary' });
+        } else {
+          res.status(200).json({
+            message: 'File uploaded successfully',
+            fileUrl: result.secure_url
+          });
         }
-  
-        res.status(200).json({
-          message: 'File uploaded successfully',
-          fileUrl: result.secure_url
-        });
       }
     );
-  
-    stream.pipe(uploadStream);
-  });
+
+    // Pipe the buffer stream to Cloudinary upload stream
+    stream.pipe(uploadResponse);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 
 app.get('/api/upload', (req, res) => {
