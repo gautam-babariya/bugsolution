@@ -5,7 +5,7 @@ const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
-
+const cors = require('cors');
 
 const app = express();
 app.use(cors({
